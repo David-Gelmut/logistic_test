@@ -3,18 +3,21 @@
 
 ## Технологический стек
 
-- **Laravel 11**
+- **Laravel 12**
 - **PHP 8.4+**
 - **PostgreSQL 17**
-- **RabbitMQ 4**
+- **RabbitMQ 4.3**
 - **Redis**
 - **Nginx**
+- **Docker**
 
 
 ## Запуск сервиса
 1. Клонируйте репозиторий
 
-```git clone https://github.com/David-Gelmut/logistic_test.git```
+```bash 
+git clone https://github.com/David-Gelmut/logistic_test.git
+```
 
 
 2. Поднимите инфраструктуру (Docker)
@@ -23,9 +26,15 @@
 
 3. Установите зависимости и настройте БД
 
-```docker exec -it notification_app composer install```
-```docker exec -it notification_app php artisan migrate```
-```docker exec -it notification_app php artisan db:seed --class=UserSeeder```
+```bash 
+    docker exec -it notification_app composer install
+```
+```bash 
+docker exec -it notification_app php artisan migrate
+```
+```bash
+ docker exec -it notification_app php artisan db:seed --class=UserSeeder
+ ```
 
 4. Запустите тесты
 
@@ -54,7 +63,8 @@
 1. Запуск рассылки: 
 ``` POST /api/v1/notifications ```
 
-   ```{
+   ``` json
+   {
    "request_id": "uuid",
    "channel": "sms",
    "priority": "high",
