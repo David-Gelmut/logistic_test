@@ -16,27 +16,35 @@
 1. Клонируйте репозиторий
 
 ```bash 
-git clone https://github.com/David-Gelmut/logistic_test.git
+  git clone https://github.com/David-Gelmut/logistic_test.git
 ```
 Не забыть создать .env
 
 2. Поднимите инфраструктуру (Docker)
 
 ```bash 
-docker-compose up -d --build
+  docker-compose up -d --build
 ```
 
 3. Установите зависимости и настройте БД
 
-```bash 
-    docker exec -it notification_app composer install
+```bash
+  composer install
 ```
 ```bash 
-docker exec -it notification_app php artisan migrate
+  docker exec -it notification_app composer install
+```
+```bash 
+  docker exec -it notification_app php artisan migrate
 ```
 ```bash
- docker exec -it notification_app php artisan db:seed --class=UserSeeder
+  docker exec -it notification_app php artisan db:seed --class=UserSeeder
  ```
+Для Linux:
+```bash
+  sudo chmod -R 775 storage bootstrap/cache && sudo chown -R www-data:www-data storage bootstrap/cache
+```
+
 
 4. Запустите тесты
 
