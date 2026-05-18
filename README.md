@@ -18,11 +18,13 @@
 ```bash 
 git clone https://github.com/David-Gelmut/logistic_test.git
 ```
-
+Не забыть создать .env
 
 2. Поднимите инфраструктуру (Docker)
 
-```docker-compose up -d --build```
+```bash 
+docker-compose up -d --build
+```
 
 3. Установите зависимости и настройте БД
 
