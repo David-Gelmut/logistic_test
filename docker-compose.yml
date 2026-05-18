@@ -1,0 +1,133 @@
+services:
+
+    app:
+        build:
+            context: .
+            dockerfile: ./docker/app/Dockerfile
+        container_name: notification_app
+        restart: always
+        volumes:
+            - ./:/var/www
+        command: >
+            sh -c "php artisan migrate --force &&
+                   php-fpm"
+        depends_on:
+            db:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        networks:
+            - network
+
+    web:
+        image: nginx:alpine
+        container_name: notification_nginx
+        restart: always
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/conf.d:/etc/nginx/conf.d
+        depends_on:
+            - app
+        ports:
+            - "8080:80"
+        networks:
+            - network
+
+    db:
+        image: postgres:17-alpine
+        container_name: notification_db
+        restart: always
+        environment:
+            POSTGRES_DB: ${DB_DATABASE}
+            POSTGRES_USER: ${DB_USERNAME}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+        healthcheck:
+            test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}" ]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+        ports:
+            - "54321:5432"
+        volumes:
+            - data:/var/lib/postgresql/data
+        networks:
+            - network
+
+    worker:
+        build:
+            context: .
+            dockerfile: ./docker/app/Dockerfile
+        container_name: notification_worker
+        restart: always
+        command: php artisan queue:work --queue=high,low --tries=3
+        volumes:
+            - .:/var/www
+        depends_on:
+            app:
+                condition: service_started
+            db:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - network
+
+    scheduler:
+        build:
+            context: .
+            dockerfile: ./docker/app/Dockerfile
+        restart: always
+        container_name: notification_scheduler
+        volumes:
+            - .:/var/www
+        command: php artisan schedule:work
+        depends_on:
+            app:
+                condition: service_started
+            db:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - network
+
+    rabbitmq:
+        image: rabbitmq:4.3-management-alpine
+        container_name: notification_queue
+        restart: always
+        environment:
+            RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+        healthcheck:
+            test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+        networks:
+            - network
+
+    redis:
+        image: redis:alpine
+        container_name: notification_cache
+        restart: always
+        healthcheck:
+            test: [ "CMD", "redis-cli", "ping" ]
+            interval: 5s
+            timeout: 3s
+            retries: 5
+        ports:
+            - "6379:6379"
+        networks:
+            - network
+
+volumes:
+    data:
+        driver: local
+networks:
+    network:
+        driver: bridge
