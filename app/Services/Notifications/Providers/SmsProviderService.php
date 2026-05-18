@@ -14,7 +14,6 @@ class SmsProviderService implements NotificationProviderInterface
      */
     public function send(Notification $notification): bool
     {
-        //throw new CancelledProviderException("Gateway Timeout");
         if (rand(1, 10) === 1) throw new CancelledProviderException("Gateway Timeout");
 
         \Log::info("SMS sent to {$notification->contact}: {$notification->message}");
