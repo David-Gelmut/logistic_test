@@ -6,10 +6,12 @@
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
-        "php": "^8.3",
-        "laravel/framework": "^13.8",
+        "ext-redis": "*",
+        "laravel/framework": "^v12.1.0",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
-        "vladimir-yuldashev/laravel-queue-rabbitmq": "^14.3"
+        "predis/predis": "^3.4",
+        "vladimir-yuldashev/laravel-queue-rabbitmq": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
